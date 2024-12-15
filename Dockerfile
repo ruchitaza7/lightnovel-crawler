@@ -4,18 +4,6 @@ FROM python:3.10-slim
 # Set the working directory in the container
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && \
-    apt-get install -y \
-    curl \
-    ffmpeg \
-    git \
-    wget \
-    jq \
-    procps \
-    python3-dev \
-    calibre && \
-    rm -rf /var/lib/apt/lists/*
 
 # Copy the requirements file into the container
 COPY requirements.txt .
