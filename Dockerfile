@@ -9,7 +9,6 @@ RUN apt-get update && \
     apt-get install -y \
     curl \
     ffmpeg \
-    aria2 \
     git \
     wget \
     jq \
