@@ -32,12 +32,16 @@ async def crawl_task(update: Update, url: str) -> None:
     ]
 
     try:
-        # Run the command in an async thread to avoid blocking the bot
-        result = await asyncio.to_thread(subprocess.run, command, check=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        # Run the command using Popen to handle non-interactive execution
+        process = await asyncio.to_thread(subprocess.Popen, command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = await asyncio.to_thread(process.communicate)
 
         # Log the result to debug any issues
-        print("stdout:", result.stdout.decode())
-        print("stderr:", result.stderr.decode())
+        print("stdout:", stdout.decode())
+        print("stderr:", stderr.decode())
+
+        if process.returncode != 0:
+            raise subprocess.CalledProcessError(process.returncode, command, stderr=stderr)
 
         # Notify user that crawling is complete
         await update.message.reply_text("The novel has been successfully crawled and saved in EPUB format.")
