@@ -9,8 +9,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install Python dependencies from the requirements file and gunicorn
-RUN pip install --no-cache-dir -r requirements.txt \
-    gunicorn==20.1.0
+RUN pip install --no-cache-dir -r requirements.txt 
 
 
 # Copy the entire application code to the container
@@ -20,4 +19,4 @@ COPY . .
 EXPOSE 8000
 
 # Run both gunicorn for the web app and the lncrawl bot using telegram
-CMD ["sh", "-c", "gunicorn app:app --bind 0.0.0.0:8000 & python3 pytest.py"]
+CMD ["python3 pytest.py"]
