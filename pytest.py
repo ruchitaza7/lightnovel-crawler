@@ -1,6 +1,7 @@
 import subprocess
 import os
 import asyncio
+import telegram
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
@@ -32,7 +33,11 @@ async def crawl_task(update: Update, url: str) -> None:
 
     try:
         # Run the command in an async thread to avoid blocking the bot
-        await asyncio.to_thread(subprocess.run, command, check=True)
+        result = await asyncio.to_thread(subprocess.run, command, check=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+
+        # Log the result to debug any issues
+        print("stdout:", result.stdout.decode())
+        print("stderr:", result.stderr.decode())
 
         # Notify user that crawling is complete
         await update.message.reply_text("The novel has been successfully crawled and saved in EPUB format.")
@@ -78,6 +83,11 @@ async def crawl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     # Extract URL from the user's message
     url = context.args[0]
+
+    # Validate URL format (you could add further validation here)
+    if not url.startswith("http"):
+        await update.message.reply_text("Invalid URL format. Please provide a valid URL.")
+        return
 
     # Notify user that their request is being processed
     await update.message.reply_text("Processing your request...")
