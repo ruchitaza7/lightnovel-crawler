@@ -4,6 +4,11 @@ import asyncio
 import telegram
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
+import logging
+
+# Setup logging to capture errors and warnings
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Dictionary to store tasks by user_id
 user_tasks = {}
@@ -33,12 +38,13 @@ async def crawl_task(update: Update, url: str) -> None:
 
     try:
         # Run the command using Popen to handle non-interactive execution
+        logger.info(f"Executing command: {command}")
         process = await asyncio.to_thread(subprocess.Popen, command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = await asyncio.to_thread(process.communicate)
 
         # Log the result to debug any issues
-        print("stdout:", stdout.decode())
-        print("stderr:", stderr.decode())
+        logger.info("stdout: %s", stdout.decode())
+        logger.info("stderr: %s", stderr.decode())
 
         if process.returncode != 0:
             raise subprocess.CalledProcessError(process.returncode, command, stderr=stderr)
@@ -128,6 +134,7 @@ def main():
     bot_token = os.getenv('BOT_TOKEN')
 
     if bot_token is None:
+        logger.error("Bot token is missing. Please set the BOT_TOKEN environment variable.")
         raise ValueError("Bot token is missing. Please set the BOT_TOKEN environment variable.")
 
     # Initialize the application with the bot token from the environment variable
